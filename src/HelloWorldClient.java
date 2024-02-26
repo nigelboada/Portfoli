@@ -7,9 +7,9 @@ import java.util.Scanner;
 public class HelloWorldClient {
     public static void main(String[] args) {
         System.out.println("Client: Inicio intento de conexión");
-        //String host = "172.16.109.174";  //Pol
-        // String host = "127.0.0.1";
-        String host = "172.16.119.90"; //Hugo eduroam
+        String host = "172.16.109.174";  //Pol
+        //String host = "127.0.0.1";
+        //String host = "172.16.119.90"; //Hugo eduroam
         /*String host = "192.168.43.95";*/
         int port = 1234;
 
