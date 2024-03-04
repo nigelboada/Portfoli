@@ -1,71 +1,53 @@
-import java.net.ServerSocket;
+import java.io.*;
 import java.net.Socket;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
-public class ConcurrentServerWinSon
-{
+public class ConcurrentServerWinSon {
+
     private static final int port = 1234;
+    private static String host = "127.0.0.1";
 
-    public static void main (String[] args)
-    {
-        int id = 0;
-        try
-        {
-            ServerSocket ss = new ServerSocket (port);
-
-            for (;;)
-            {
-                Socket s = ss.accept();
-                Thread t = new Thread (new Server (s), "Servidor-" + (++id));
-                t.start();
-                t.join();
-            }
+    public static void main(String[] args) {
+        if (args.length > 0){
+            host = args[0];
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+        System.out.println("Hello world!");
+        try {
+            InputStream consola = System.in;
+//            DataInputStream consolaDIS = new DataInputStream(consola);
+
+//            incorrecte, no retorna al fer el salt de línia
+//            String entrada = consolaDIS.readUTF();
+
+//            incorrecte, deprecated, no transforma bé bytes a chars
+//            String entrada2 = consolaDIS.readLine();
+
+            BufferedReader d = new BufferedReader(new InputStreamReader(consola));
+
+            String entrada = "";
+            String retorn;
+            Socket socket = new Socket(host, port);
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
+
+            System.out.println("Client: Comença a parlar amb el client.");
+            System.out.println("Quan vulguis acabar, escriu FI");
+            while (!entrada.equals("FI")){
+                entrada = d.readLine();
+                dos.writeUTF(entrada);
+                dos.flush();
+                retorn = dis.readUTF();
+                System.out.print("He rebut del server: ");
+                System.out.println(retorn);
+            }
+            System.out.println("Client: he acabat");
+
+//            tancant els canals
+            dos.close();
+            dis.close();
+            socket.close();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
-
-    private static class Server implements Runnable
-    {
-        private Socket s;
-
-        public Server (Socket s)
-        {
-            this.s = s;
-        }
-
-        public void run()
-        {
-            try
-            {
-                String name = Thread.currentThread().getName();
-                System.out.println (name + ": Connexió acceptada.");
-                DataInputStream  dis = new DataInputStream  (s.getInputStream());
-                DataOutputStream dos = new DataOutputStream (s.getOutputStream());
-                String str = "";
-                String strUpper;
-
-                while (!str.equals ("FI"))
-                {
-                    str = dis.readUTF();
-                    System.out.println (name + ": He rebut el missatge \"" + str + "\"");
-                    strUpper = str.toUpperCase();
-                    dos.writeUTF (strUpper);
-                    dos.flush();
-                }
-                dis.close();
-                dos.close();
-                s.close();
-                System.out.println (name + ": Connexió tancada.");
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-
 }
