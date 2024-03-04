@@ -1,53 +1,70 @@
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 
-public class ConcurrentServer {
+public class ConcurrentServer
+{
     private static final int port = 1234;
 
-    public static void main(String[] args) {
-        try {
-            ServerSocket ss = new ServerSocket(port);
+    public static void main (String[] args)
+    {
+        int id = 0;
+        try
+        {
+            ServerSocket ss = new ServerSocket (port);
 
-            while (true) {
+            for (;;)
+            {
                 Socket s = ss.accept();
-                System.err.println("Connexió acceptada.");
-                Thread t = new Thread(new Handler(s));
+                Thread t = new Thread (new Server (s), "Servidor-" + (++id));
                 t.start();
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
+    }
 
-        private static class Handler implements Runnable {
-            private Socket socket;
+    private static class Server implements Runnable
+    {
+        private Socket s;
 
-            public Handler(Socket socket) {
-                this.socket = socket;
-            }
+        public Server (Socket s)
+        {
+            this.s = s;
         }
 
-        public void run () {
-            try {
-                DataInputStream dis = new DataInputStream(s.getInputStream());
-                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+        public void run()
+        {
+            try
+            {
+                String name = Thread.currentThread().getName();
+                System.out.println (name + ": Connexió acceptada.");
+                DataInputStream  dis = new DataInputStream  (s.getInputStream());
+                DataOutputStream dos = new DataOutputStream (s.getOutputStream());
                 String str = "";
+                String strUpper;
 
-                while (!str.equals("FI")) {
+                while (!str.equals ("FI"))
+                {
                     str = dis.readUTF();
-                    System.out.println("He rebut el missatge \"" + str + "\"");
-                    str = str.toUpperCase();
-                    dos.writeUTF(str);
+                    System.out.println (name + ": He rebut el missatge \"" + str + "\"");
+                    strUpper = str.toUpperCase();
+                    dos.writeUTF (strUpper);
                     dos.flush();
                 }
                 dis.close();
                 dos.close();
                 s.close();
-                System.out.println("Connexió tancada.");
-            } catch (Exception e) {
+                System.out.println (name + ": Connexió tancada.");
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
         }
     }
+
 }
