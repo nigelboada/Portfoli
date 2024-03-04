@@ -1,9 +1,10 @@
 public class SharedSync{
     private static int x = 0;
-    private static Integer locker;
+    private static Integer locker = 0;
     public static void main(String[] args) throws InterruptedException {
         Thread t1 = new Thread(new Adder());
         Thread t2 = new Thread(new Adder());
+
         t1.start();
         t2.start();
         t1.join();
