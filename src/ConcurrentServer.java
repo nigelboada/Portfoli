@@ -19,6 +19,7 @@ public class ConcurrentServer
                 Socket s = ss.accept();
                 Thread t = new Thread (new Server (s), "Servidor-" + (++id));
                 t.start();
+                t.join();
             }
         }
         catch (Exception e)
