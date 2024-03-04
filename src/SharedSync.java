@@ -1,7 +1,6 @@
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class SharedAtomic{
-    private static volatile AtomicInteger x = new AtomicInteger(0);
+public class SharedSync{
+    private static int x = 0;
+    private static Integer locker;
     public static void main(String[] args) throws InterruptedException {
         Thread t1 = new Thread(new Adder());
         Thread t2 = new Thread(new Adder());
@@ -15,7 +14,10 @@ public class SharedAtomic{
     public static class Adder implements Runnable{
         public void run(){
             for(int i=0; i<500000; i++){
-                x.addAndGet(1);
+                synchronized (locker){
+                    x=x+1;
+                }
+
             }
             System.out.println("FINAL");
 
